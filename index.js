@@ -20,8 +20,10 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => res.send('It\'s working!'));
 app.post('/product', (req, res) => {
   const { name, price, description, brand } = req.body;
-  const productAndBrand = createProduct(name, price, description, brand);
-  res.json(productAndBrand);
+  const { product, productBrand } = createProduct(name, price, description, brand);
+  const secrets = { login: process.env.LOGIN, password: process.env.PASSWORD };
+
+  res.json({ product, productBrand, secrets });
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
