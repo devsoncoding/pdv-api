@@ -1,11 +1,10 @@
-const express = require('express');
-const Brand = require('./src/data/brand');
-const Product = require('./src/data/product');
-const bodyParser = require('body-parser');
+import express from 'express';
+import BodyParser from 'body-parser';
+import Brand from './data/brand';
+import Product from './data/product';
 const app = express();
-const port = 3000;
 
-function createProduct(name, price, description, brand) {
+function createProduct(name: string, price: number, brand: string, description?: string) {
   const timerId = new Date().getTime();
   const brandId = timerId.toString(16);
   const productId = (timerId + (new Date().getMilliseconds())).toString(16);
@@ -15,15 +14,16 @@ function createProduct(name, price, description, brand) {
   return { product, productBrand };
 }
 
-app.use(bodyParser.json());
+app.use(BodyParser.json());
 
-app.get('/', (req, res) => res.send('It\'s working!'));
+app.get('/', (_, res) => res.send('It\'s working!'));
 app.post('/product', (req, res) => {
   const { name, price, description, brand } = req.body;
-  const { product, productBrand } = createProduct(name, price, description, brand);
+  const { product, productBrand } = createProduct(name, price, brand, description);
   const secrets = { login: process.env.LOGIN, password: process.env.PASSWORD };
-
+  console.log(secrets)
   res.json({ product, productBrand, secrets });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+// @ts-ignore
+app.listen();

@@ -2,9 +2,11 @@
   "name": "com.devsoncoding.pdv-api",
   "version": "0.0.1",
   "description": "Api for the PDV (Stock control app)",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "node index.js"
+    "build": "tsc ",
+    "start": "yarn build && node ./dist/index.js",
+    "deploy": "yarn build && now deploy"
   },
   "repository": "git@github.com:devsoncoding/pdv-api.git",
   "author": "Uilque Messias <uqmessias@gmail.com>",
@@ -12,5 +14,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.0"
   }
 }
