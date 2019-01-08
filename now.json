@@ -1,8 +1,15 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "*.js",
-      "use": "@now/node"
+      "src": "dist/*.js",
+      "use": "@now/node-server"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/index.js"
     }
   ],
   "env": {

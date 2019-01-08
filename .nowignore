@@ -1,0 +1,13 @@
+# folders
+node_modules
+src
+.vscode
+
+# files
+*.ts
+*.log
+.editorconfig
+tsconfig.json
+yarn.lock
+LICENSE
+README.md
