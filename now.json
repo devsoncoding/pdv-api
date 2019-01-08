@@ -15,5 +15,8 @@
   "env": {
     "LOGIN": "@login",
     "PASSWORD": "My really secret password :)"
+  },
+  "github": {
+    "enabled": false
   }
 }
