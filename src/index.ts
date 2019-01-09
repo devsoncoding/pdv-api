@@ -1,28 +1,88 @@
 import express from 'express';
-import BodyParser from 'body-parser';
-import Brand from './data/brand';
-import Product from './data/product';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+
 const app = express();
 
-function createProduct(name: string, price: number, brand: string, description?: string) {
-  const timerId = new Date().getTime();
-  const brandId = timerId.toString(16);
-  const productId = (timerId + (new Date().getMilliseconds())).toString(16);
-  const productBrand = Brand(brandId, brand);
-  const product = Product(productId, name, price, brandId, description);
+const BrandSchema = new mongoose.Schema({
+  name: String,
+});
+const BrandModel = mongoose.model("brands", BrandSchema);
 
-  return { product, productBrand };
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  brandId: String,
+  description: String,
+});
+const ProductModel = mongoose.model("products", ProductSchema);
+
+type ProductDocument = mongoose.Document & {
+  name: string,
+  price: number,
+  brandId: string,
+  description?: string,
 }
 
-app.use(BodyParser.json());
+function connect(): Promise<mongoose.Connection> {
+  return new Promise(resolve => {
+    if (!process.env.MONGODB_URL)
+      throw new Error('There\'s no database URL connection available');
+
+    mongoose.connect(process.env.MONGODB_URL, err => {
+      if (!!err) {
+        console.error("connection failure", err);
+        throw err;
+      }
+      else {
+        console.log("connected");
+        resolve(mongoose.connection);
+      }
+    });
+  });
+}
+
+async function getOrSaveBrand(name: string): Promise<mongoose.Document> {
+  return new Promise(resolve => {
+    BrandModel.findOne({ name }, async (err: any, brandDocument: mongoose.Document) => {
+      if (!err && !!brandDocument) {
+        console.log("brand found", { brandDocument, err });
+        resolve(brandDocument);
+        return;
+      }
+
+      console.warn("brand not found", { name, err });
+
+      const brandModel = new BrandModel({ name });
+      const brandItem = await brandModel.save();
+      console.log("brand saved", { brandItem });
+      resolve(brandItem);
+    });
+  });
+}
+
+async function createProduct(name: string, price: number, brand: string, description?: string) {
+  const db = await connect();
+  const brandItem = await getOrSaveBrand(brand);
+  const productModel = new ProductModel({
+    name: name,
+    price: price,
+    brandId: brandItem._id,
+    description: description,
+  });
+  const productItem = await productModel.save() as ProductDocument;
+
+  db.close();
+  return productItem;
+};
+
+app.use(bodyParser.json());
 
 app.get('/', (_, res) => res.send('It\'s working!'));
-app.post('/product', (req, res) => {
+app.post('/product', async (req, res) => {
   const { name, price, description, brand } = req.body;
-  const { product, productBrand } = createProduct(name, price, brand, description);
-  const secrets = { login: process.env.LOGIN, password: process.env.PASSWORD };
-  console.log(secrets)
-  res.json({ product, productBrand, secrets });
+  const product = await createProduct(name, price, brand, description);
+  res.json({ product });
 });
 
 // @ts-ignore
