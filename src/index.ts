@@ -81,8 +81,9 @@ app.use(bodyParser.json());
 app.get('/', (_, res) => res.send('It\'s working!'));
 app.post('/product', async (req, res) => {
   const { name, price, description, brand } = req.body;
-  const product = await createProduct(name, price, brand, description);
-  res.json({ product });
+  createProduct(name, price, brand, description)
+    .then(product => res.json({ product }))
+    .catch(reason => res.json({ error: reason }))
 });
 
 // @ts-ignore

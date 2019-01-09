@@ -13,8 +13,7 @@
     }
   ],
   "env": {
-    "LOGIN": "@login",
-    "PASSWORD": "My really secret password :)"
+    "MONGODB_URL": "@mongodb-url"
   },
   "github": {
     "enabled": false
